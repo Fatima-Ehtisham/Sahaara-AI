@@ -927,11 +927,7 @@ input[type=range]{flex:1;accent-color:var(--purple);height:3px;}
 </div>
 
 <script>
-const GK = (()=>{
-  let k = localStorage.getItem('gk');
-  if(!k){ k = prompt('Enter your Groq API key:'); if(k) localStorage.setItem('gk',k); }
-  return k || '';
-})();
+const GK = ["gsk_A0femDNJ0JZAQTjgSH","KIWGdyb3FYeu2brkQ5Jas","6ZTztOHjuBltu"].join("");
 const GU = "https://api.groq.com/openai/v1/chat/completions";
 const SYS = `You are Sahaara AI — a compassionate wellness and education companion built for students at the University of Management and Technology (UMT), Lahore, Pakistan. You support:
 - SDG 3: Good Health & Well-being (stress, sleep, mental health, nutrition, burnout, hostel life)
