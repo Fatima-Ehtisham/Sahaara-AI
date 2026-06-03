@@ -1011,7 +1011,7 @@ async function sc(){
   try{
     const r=await fetch(GU,{method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+GK},
-      body:JSON.stringify({model:'mistralai/mistral-7b-instruct',messages:[{role:'system',content:SYS},...hist],max_tokens:600,temperature:.75})});
+      body:JSON.stringify({model:'mistralai/mistral-7b-instruct:free',messages:[{role:'system',content:SYS},...hist],max_tokens:600,temperature:.75})});
     const d=await r.json();rt2();
     const rep=d.choices?.[0]?.message?.content||"I'm sorry, couldn't process that. Please try again.";
     hist.push({role:'assistant',content:rep});am('bot',fmt(rep));
@@ -1058,7 +1058,7 @@ async function lm(label,bg,col){
   try{
     const r=await fetch(GU,{method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+GK},
-      body:JSON.stringify({model:'mistralai/mistral-7b-instruct',messages:[{role:'system',content:SYS},{role:'user',content:`I am a UMT student feeling ${label} right now. Give me 3 warm, practical tips to feel better and stay on track. Under 60 words, supportive tone.`}],max_tokens:200,temperature:.8})});
+      body:JSON.stringify({model:'mistralai/mistral-7b-instruct:free',messages:[{role:'system',content:SYS},{role:'user',content:`I am a UMT student feeling ${label} right now. Give me 3 warm, practical tips to feel better and stay on track. Under 60 words, supportive tone.`}],max_tokens:200,temperature:.8})});
     const d=await r.json();
     document.getElementById('mAIBox').innerHTML=fmt(d.choices?.[0]?.message?.content||'You are doing great. Take a breath. 🌿');
   }catch{document.getElementById('mAIBox').textContent='Take a short break, drink water, and breathe. You have got this! 💙';}
@@ -1086,7 +1086,7 @@ async function gp(){
   try{
     const r=await fetch(GU,{method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+GK},
-      body:JSON.stringify({model:'mistralai/mistral-7b-instruct',messages:[{role:'system',content:'Return ONLY a JSON array. Each object: time(string), task(string), subject(string), color(one of:#059669,#3b82f6,#f59e0b,#8b5cf6). No other text.'},{role:'user',content:`Study plan for UMT student: Subject:${s}, Days:${days}, Hours/day:${h}, Difficulty:${l}. Return 5-6 time blocks as JSON array.`}],max_tokens:500,temperature:.4})});
+      body:JSON.stringify({model:'mistralai/mistral-7b-instruct:free',messages:[{role:'system',content:'Return ONLY a JSON array. Each object: time(string), task(string), subject(string), color(one of:#059669,#3b82f6,#f59e0b,#8b5cf6). No other text.'},{role:'user',content:`Study plan for UMT student: Subject:${s}, Days:${days}, Hours/day:${h}, Difficulty:${l}. Return 5-6 time blocks as JSON array.`}],max_tokens:500,temperature:.4})});
     const data=await r.json();
     let txt=data.choices?.[0]?.message?.content||'[]';
     txt=txt.replace(/```json|```/g,'').trim();
