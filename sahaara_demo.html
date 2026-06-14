@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sahaara AI — Live Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root{
+  --g:#059669;--g2:#047857;--g3:#10b981;--gp:#ecfdf5;--gl:#d1fae5;
+  --b:#3b82f6;--b2:#2563eb;--bp:#eff6ff;--bl:#dbeafe;
+  --t:#0d9488;--a:#f59e0b;--r:#ef4444;--p:#8b5cf6;
+  --bg:#f0f9f4;--white:#ffffff;--ink:#0f172a;--ink2:#1e293b;
+  --m:#64748b;--m2:#94a3b8;--border:#e2e8f0;--border2:#cbd5e1;
+  --sh:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.07);
+  --sh2:0 8px 40px rgba(0,0,0,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+
+/* ══ DEMO BADGE ══ */
+.demo-banner{
+  position:fixed;top:0;left:0;right:0;z-index:9999;
+  background:linear-gradient(90deg,#1e3a2a,#1e3050,#1e3a2a);
+  padding:7px 20px;display:flex;align-items:center;justify-content:space-between;
+  font-size:11px;font-weight:700;color:rgba(255,255,255,.85);
+  letter-spacing:.05em;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.demo-live{display:flex;align-items:center;gap:7px;}
+.demo-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:blink 1.5s infinite;}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,.5)}50%{box-shadow:0 0 0 6px rgba(74,222,128,0)}}
+.demo-controls{display:flex;gap:8px;}
+.dctl{
+  font-size:10px;font-weight:700;padding:4px 12px;border-radius:99px;
+  cursor:pointer;transition:all .15s;border:1px solid rgba(255,255,255,.2);
+  color:rgba(255,255,255,.85);background:rgba(255,255,255,.08);letter-spacing:.04em;
+}
+.dctl:hover{background:rgba(255,255,255,.18);}
+.dctl.green{background:rgba(5,150,105,.5);border-color:rgba(5,150,105,.6);}
+
+/* ══ SIDEBAR ══ */
+.sidebar{
+  position:fixed;top:32px;left:0;width:256px;height:calc(100vh - 32px);
+  background:var(--white);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;z-index:300;overflow:hidden;
+}
+.sidebar::before{
+  content:'';position:absolute;top:-80px;left:-80px;width:260px;height:260px;
+  border-radius:50%;background:radial-gradient(circle,rgba(5,150,105,.07),transparent 70%);
+  pointer-events:none;
+}
+.sb-logo{padding:20px 18px 14px;border-bottom:1px solid var(--border);position:relative;}
+.logo-row{display:flex;align-items:center;gap:11px;margin-bottom:8px;}
+.logo-icon{
+  width:40px;height:40px;border-radius:12px;
+  background:linear-gradient(135deg,var(--g),var(--t),var(--b));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(5,150,105,.3);flex-shrink:0;
+}
+.logo-icon span{color:#fff;font-weight:800;font-size:17px;font-family:'Instrument Serif',serif;font-style:italic;}
+.logo-name{font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.4px;}
+.logo-name em{font-style:normal;color:var(--g);}
+.logo-sub{font-size:10.5px;color:var(--m);margin-top:2px;font-weight:500;}
+.sdg-chips{display:flex;gap:5px;margin-top:10px;}
+.sdg{font-size:9px;font-weight:700;padding:3px 8px;border-radius:99px;letter-spacing:.04em;text-transform:uppercase;}
+.sdg.g{background:var(--gl);color:var(--g2);}
+.sdg.b{background:var(--bl);color:var(--b2);}
+
+.nav-sec{padding:14px 14px 4px;font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--m2);}
+.ni{
+  display:flex;align-items:center;gap:10px;padding:9px 14px;margin:1px 8px;
+  border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;color:var(--m);
+  transition:all .18s;position:relative;
+}
+.ni:hover{background:var(--bg);color:var(--ink2);}
+.ni.on{background:var(--gp);color:var(--g2);}
+.ni.on::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:20px;background:var(--g);border-radius:0 3px 3px 0;
+}
+.ni-ico{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.ni.on .ni-ico{background:rgba(5,150,105,.1);}
+.ni-live{margin-left:auto;font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;background:rgba(5,150,105,.12);color:var(--g);}
+
+.sb-foot{margin-top:auto;padding:14px 16px;border-top:1px solid var(--border);}
+.user-card{
+  background:linear-gradient(135deg,var(--gp),var(--bp));
+  border:1px solid var(--gl);border-radius:12px;padding:11px 12px;
+  display:flex;align-items:center;gap:10px;
+}
+.u-av{
+  width:34px;height:34px;border-radius:9px;
+  background:linear-gradient(135deg,var(--g),var(--b));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:12px;font-weight:800;flex-shrink:0;
+}
+.u-name{font-size:11.5px;font-weight:700;color:var(--ink);}
+.u-sub{font-size:9.5px;color:var(--m);margin-top:1px;}
+.u-dot{margin-left:auto;width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 2px rgba(34,197,94,.25);animation:blink 2s infinite;}
+
+/* ══ MAIN ══ */
+.main{margin-left:256px;padding-top:32px;min-height:100vh;}
+.topbar{
+  background:rgba(255,255,255,.92);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);padding:0 26px;height:58px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:32px;z-index:200;
+}
+.tb-title{font-size:14px;font-weight:700;color:var(--ink);}
+.tb-sub{font-size:11.5px;color:var(--m);margin-left:8px;}
+.tb-pills{display:flex;gap:7px;}
+.tpill{font-size:9.5px;font-weight:700;padding:4px 10px;border-radius:99px;letter-spacing:.03em;}
+.tp-g{background:var(--gl);color:var(--g2);}
+.tp-b{background:var(--bl);color:var(--b2);}
+
+/* ══ PAGES ══ */
+.page{display:none;padding:22px 26px 40px;}
+.page.on{display:block;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ══ HERO ══ */
+.hero{
+  border-radius:22px;overflow:hidden;margin-bottom:22px;
+  background:linear-gradient(145deg,#0a2416 0%,#0e2a35 55%,#0a2416 100%);
+  padding:28px 32px;display:flex;align-items:center;justify-content:space-between;
+  position:relative;min-height:180px;
+}
+.hero::before{
+  content:'';position:absolute;right:-40px;top:-40px;width:260px;height:260px;
+  border-radius:50%;background:radial-gradient(circle,rgba(13,148,136,.2),transparent 65%);
+}
+.hero::after{
+  content:'';position:absolute;left:30%;bottom:-50px;width:180px;height:180px;
+  border-radius:50%;background:radial-gradient(circle,rgba(5,150,105,.12),transparent 65%);
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.025)1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025)1px,transparent 1px);
+  background-size:32px 32px;
+  mask-image:linear-gradient(135deg,transparent 20%,black 60%);
+}
+.hero-left{position:relative;z-index:1;max-width:480px;}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(74,222,128,.8);margin-bottom:12px;
+}
+.hero-h{
+  font-family:'Instrument Serif',serif;font-size:28px;font-weight:400;font-style:italic;
+  color:#fff;line-height:1.25;margin-bottom:10px;letter-spacing:-.3px;
+}
+.hero-h em{color:#4ade80;font-style:italic;}
+.hero-p{font-size:13px;color:rgba(255,255,255,.65);line-height:1.7;}
+.hero-p strong{color:rgba(255,255,255,.9);}
+.hero-nums{
+  position:relative;z-index:1;display:flex;flex-direction:column;gap:10px;flex-shrink:0;
+}
+.hnum{
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;padding:12px 18px;text-align:center;min-width:88px;
+  backdrop-filter:blur(8px);
+}
+.hnum-v{font-family:'Instrument Serif',serif;font-size:22px;color:#fff;line-height:1;}
+.hnum-l{font-size:9px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em;margin-top:4px;font-weight:700;}
+
+/* ══ CHAT LAYOUT ══ */
+.chat-wrap{display:grid;grid-template-columns:1fr 282px;gap:18px;align-items:start;}
+.chat-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:20px;box-shadow:var(--sh2);overflow:hidden;display:flex;flex-direction:column;
+}
+.chat-header{
+  padding:14px 18px;
+  background:linear-gradient(135deg,#0a2416,#0e2a35);
+  display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;
+}
+.chat-header::after{content:'';position:absolute;right:-20px;top:-20px;width:80px;height:80px;border-radius:50%;background:rgba(74,222,128,.07);}
+.ch-av{
+  width:40px;height:40px;border-radius:11px;flex-shrink:0;
+  background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Instrument Serif',serif;font-size:19px;font-style:italic;font-weight:400;color:#fff;
+}
+.ch-name{font-family:'Instrument Serif',serif;font-size:16px;font-style:italic;color:#fff;letter-spacing:-.2px;}
+.ch-sub{font-size:10.5px;color:rgba(255,255,255,.5);margin-top:1px;}
+.ch-live{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:10.5px;color:rgba(255,255,255,.65);}
+
+.chat-msgs{
+  height:400px;overflow-y:auto;padding:20px;
+  display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth;
+  background:var(--bg);
+}
+.chat-msgs::-webkit-scrollbar{width:3px;}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+.mrow{display:flex;gap:9px;animation:msgIn .22s ease;}
+@keyframes msgIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.mrow.me{flex-direction:row-reverse;}
+.mav{
+  width:30px;height:30px;border-radius:9px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Instrument Serif',serif;font-size:13px;font-style:italic;
+}
+.mrow.bot .mav{background:linear-gradient(135deg,var(--g),var(--t));color:#fff;}
+.mrow.me .mav{background:var(--border);color:var(--m);font-family:'Plus Jakarta Sans',sans-serif;font-style:normal;font-size:10px;font-weight:700;}
+.mbub{
+  max-width:78%;padding:11px 15px;font-size:13.5px;line-height:1.68;border-radius:16px;
+}
+.mrow.bot .mbub{background:#fff;border:1px solid var(--border);border-bottom-left-radius:3px;color:var(--ink);box-shadow:0 1px 5px rgba(0,0,0,.05);}
+.mrow.me .mbub{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;border-bottom-right-radius:3px;box-shadow:0 3px 12px rgba(5,150,105,.3);}
+
+.typing-ind{
+  background:#fff;border:1px solid var(--border);border-radius:16px;border-bottom-left-radius:3px;
+  padding:12px 15px;display:inline-flex;gap:4px;align-items:center;
+  box-shadow:0 1px 5px rgba(0,0,0,.05);
+}
+.td{width:5px;height:5px;border-radius:50%;background:var(--m2);animation:tda 1.3s ease-in-out infinite;}
+.td:nth-child(2){animation-delay:.22s}.td:nth-child(3){animation-delay:.44s}
+@keyframes tda{0%,80%,100%{transform:translateY(0);opacity:.3}40%{transform:translateY(-5px);opacity:1}}
+
+.quick-area{
+  padding:10px 16px 8px;display:flex;flex-wrap:wrap;gap:6px;
+  border-top:1px solid var(--border);background:rgba(248,250,252,.8);
+}
+.qtag{
+  font-size:11.5px;padding:5px 12px;cursor:pointer;
+  border:1px solid var(--border);border-radius:99px;
+  background:#fff;color:var(--ink2);font-weight:500;transition:all .16s;
+}
+.qtag:hover{border-color:var(--g);color:var(--g);background:var(--gp);}
+
+.chat-input-wrap{
+  padding:11px 13px;border-top:1px solid var(--border);
+  display:flex;gap:8px;align-items:flex-end;background:#fff;
+}
+textarea{
+  flex:1;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;
+  padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;
+  background:var(--bg);color:var(--ink);resize:none;outline:none;
+  max-height:100px;line-height:1.5;transition:all .18s;
+}
+textarea:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(5,150,105,.08);}
+textarea::placeholder{color:var(--m2);}
+.sbtn{
+  width:42px;height:42px;border-radius:11px;
+  background:linear-gradient(135deg,var(--g),var(--g2));
+  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:#fff;flex-shrink:0;transition:all .15s;box-shadow:0 3px 12px rgba(5,150,105,.35);
+}
+.sbtn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(5,150,105,.45);}
+
+/* ══ SIDE WIDGETS ══ */
+.side-stack{display:flex;flex-direction:column;gap:13px;}
+.wcard{background:#fff;border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--sh);}
+.wtitle{font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+
+.mood-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.mbtn{
+  padding:10px 6px;border:1.5px solid var(--border);border-radius:10px;
+  background:#fff;cursor:pointer;text-align:center;font-size:11px;
+  font-weight:600;color:var(--m);font-family:'Plus Jakarta Sans',sans-serif;transition:all .18s;
+}
+.mbtn:hover,.mbtn.sel{border-color:var(--g);background:var(--gp);color:var(--g2);}
+.memoji{font-size:20px;display:block;margin-bottom:4px;}
+#moodTip{font-size:11px;color:var(--g2);margin-top:9px;font-weight:600;min-height:14px;line-height:1.5;}
+
+.cups{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:7px;}
+.cup{font-size:18px;cursor:pointer;opacity:.18;transition:all .18s;}
+.cup.full{opacity:1;transform:scale(1.1);}
+.wbar{height:5px;background:var(--border);border-radius:99px;overflow:hidden;margin-bottom:5px;}
+.wfill{height:100%;background:linear-gradient(90deg,#38bdf8,var(--b));border-radius:99px;transition:width .4s;}
+.wlbl{font-size:11px;color:var(--m);font-weight:500;}
+
+.sleep-row-w{display:flex;align-items:center;gap:9px;}
+.sleep-row-w label{font-size:11px;color:var(--m);min-width:44px;font-weight:500;}
+.sleep-row-w input[type=range]{flex:1;accent-color:var(--p);height:3px;}
+.sval{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;min-width:26px;text-align:right;color:var(--p);}
+#sn2{font-size:11px;color:var(--m);margin-top:7px;line-height:1.5;}
+
+/* WELLNESS SCORE WIDGET */
+.ws-ring{
+  width:72px;height:72px;border-radius:50%;margin:0 auto 10px;
+  background:conic-gradient(var(--g) 0% 82%, var(--border) 82%);
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.ws-ring::before{
+  content:'';position:absolute;width:54px;height:54px;border-radius:50%;background:#fff;
+}
+.ws-score{position:relative;z-index:1;font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:500;color:var(--g);}
+.ws-label{font-size:10px;text-align:center;color:var(--m);font-weight:600;}
+
+/* ══ SECTION ══ */
+.sec-head{margin-bottom:20px;}
+.sec-h{font-family:'Instrument Serif',serif;font-size:24px;font-style:italic;color:var(--ink);margin-bottom:3px;}
+.sec-s{font-size:12.5px;color:var(--m);line-height:1.6;}
+
+/* ══ CARDS ══ */
+.card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--sh);}
+.card-h{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:16px;}
+
+/* ══ STAT CARDS ══ */
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.sc{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--sh);}
+.sc-v{font-family:'Instrument Serif',serif;font-size:30px;letter-spacing:-1px;line-height:1;margin:8px 0 4px;}
+.sc-l{font-size:11.5px;color:var(--m);font-weight:500;}
+.sc-b{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;margin-top:8px;}
+.b-up{background:rgba(5,150,105,.1);color:var(--g2);}
+.b-dn{background:rgba(239,68,68,.1);color:var(--r);}
+
+/* ══ CHART CARDS ══ */
+.cc{background:#fff;border:1px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--sh);}
+.cc-h{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:16px;}
+
+/* ISSUE BARS */
+.ibar{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
+.ibar:last-child{margin:0;}
+.ibar-nm{font-size:12.5px;font-weight:500;min-width:128px;color:var(--ink2);}
+.ibar-track{flex:1;height:7px;background:var(--bg);border-radius:99px;overflow:hidden;}
+.ibar-fill{height:100%;border-radius:99px;transition:width 1s;}
+.ibar-pct{font-family:'JetBrains Mono',monospace;font-size:11px;min-width:32px;text-align:right;}
+
+/* MOOD PAGE */
+.big-moods{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px;}
+.bmb{
+  padding:16px 8px;border:2px solid var(--border);border-radius:14px;
+  background:#fff;cursor:pointer;text-align:center;font-size:11.5px;font-weight:600;
+  color:var(--m);font-family:'Plus Jakarta Sans',sans-serif;transition:all .2s;
+}
+.bmb:hover,.bmb.sel{border-color:var(--g);background:var(--gp);color:var(--g2);transform:translateY(-2px);box-shadow:var(--sh);}
+.bm-em{font-size:28px;display:block;margin-bottom:7px;}
+.ai-advice{
+  background:var(--gp);border:1.5px solid var(--gl);
+  border-radius:12px;padding:14px;font-size:13.5px;line-height:1.68;
+  color:var(--ink);min-height:80px;
+}
+
+.ml{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border);}
+.ml:last-child{border-bottom:none;}
+.ml-d{font-size:11px;color:var(--m2);min-width:88px;font-weight:500;}
+.ml-t{font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;}
+.ml-n{font-size:11px;color:var(--m);margin-left:auto;max-width:190px;text-align:right;}
+
+/* PLANNER */
+.pf{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fg label{font-size:10.5px;font-weight:700;color:var(--m);text-transform:uppercase;letter-spacing:.06em;}
+.fg input,.fg select{
+  padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;
+  background:var(--bg);color:var(--ink);outline:none;transition:all .18s;
+}
+.fg input:focus,.fg select:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(5,150,105,.08);}
+.btn-go{
+  background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;border:none;
+  padding:11px 26px;border-radius:11px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 3px 12px rgba(5,150,105,.3);transition:all .15s;
+}
+.btn-go:hover{transform:translateY(-1px);}
+.srow{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:1.5px solid var(--border);
+  border-radius:11px;padding:13px 15px;transition:all .18s;
+}
+.srow:hover{border-color:var(--g);background:var(--gp);}
+.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.stime{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--m);min-width:68px;}
+.stask{font-size:13.5px;font-weight:600;color:var(--ink);}
+.ssub{font-size:11px;color:var(--m2);margin-top:2px;}
+
+/* WELLNESS */
+.pomo-n{font-family:'JetBrains Mono',monospace;font-size:58px;color:var(--p);text-align:center;letter-spacing:-3px;margin-bottom:4px;}
+.pomo-l{font-size:11.5px;color:var(--m);text-align:center;margin-bottom:16px;font-weight:500;}
+.pomo-b{display:flex;gap:8px;justify-content:center;}
+.pbtn{padding:9px 22px;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;}
+.pb-go{background:rgba(139,92,246,.1);color:var(--p);border:1.5px solid rgba(139,92,246,.2);}
+.pb-go:hover{background:var(--p);color:#fff;}
+.pb-r{background:var(--bg);color:var(--m);border:1.5px solid var(--border);}
+.tiprow{
+  display:flex;align-items:flex-start;gap:11px;padding:11px 12px;
+  background:var(--bg);border:1px solid var(--border);border-radius:11px;transition:all .18s;
+}
+.tiprow:hover{border-color:var(--g);background:var(--gp);}
+.tip-i{font-size:18px;flex-shrink:0;margin-top:1px;}
+.tip-t{font-size:13px;color:var(--ink);line-height:1.65;font-weight:500;}
+
+/* IMPACT BOX */
+.imp{
+  background:linear-gradient(135deg,var(--gp),var(--bp));
+  border:1px solid var(--gl);border-radius:12px;padding:15px 18px;
+  display:flex;align-items:center;gap:14px;
+}
+.imp-ic{font-size:26px;}
+.imp-h{font-size:13px;font-weight:700;color:var(--g2);}
+.imp-s{font-size:11.5px;color:var(--m);margin-top:3px;line-height:1.6;}
+
+/* SPINNER */
+.spin-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--m);padding:6px 0;}
+.spin{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--g);border-radius:50%;animation:spn .7s linear infinite;flex-shrink:0;}
+@keyframes spn{to{transform:rotate(360deg)}}
+
+/* ══ ANXIETY SCORE PAGE ══ */
+.anxiety-form{display:flex;flex-direction:column;gap:14px;}
+.aq{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.aq-q{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:11px;}
+.aq-scale{display:flex;gap:8px;}
+.aq-btn{
+  flex:1;padding:8px 4px;border:1.5px solid var(--border);border-radius:9px;
+  background:#fff;cursor:pointer;text-align:center;font-size:12px;font-weight:600;
+  color:var(--m);transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif;
+}
+.aq-btn:hover{border-color:var(--g);color:var(--g);background:var(--gp);}
+.aq-btn.sel{border-color:var(--g);background:var(--g);color:#fff;}
+.anxiety-result{
+  background:linear-gradient(135deg,#f0fdf4,#eff6ff);
+  border:1.5px solid var(--gl);border-radius:16px;padding:20px;
+  text-align:center;display:none;
+}
+.ar-score{font-family:'Instrument Serif',serif;font-size:48px;font-style:italic;color:var(--g);margin-bottom:6px;}
+.ar-label{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px;}
+.ar-msg{font-size:13px;color:var(--m);line-height:1.7;}
+
+/* ══ JOURNAL PAGE ══ */
+.journal-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.journal-entry{
+  background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;
+  cursor:pointer;transition:all .2s;
+}
+.journal-entry:hover{border-color:var(--g);transform:translateY(-2px);box-shadow:var(--sh);}
+.je-date{font-size:10.5px;color:var(--m2);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;}
+.je-mood{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:5px;}
+.je-preview{font-size:12.5px;color:var(--m);line-height:1.6;}
+.journal-new{
+  background:var(--gp);border:1.5px dashed var(--g);border-radius:14px;padding:16px;
+  cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:120px;color:var(--g);font-weight:700;font-size:13px;gap:8px;transition:all .2s;
+}
+.journal-new:hover{background:var(--gl);}
+.j-textarea{
+  width:100%;padding:14px;border:1.5px solid var(--border);border-radius:12px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;color:var(--ink);
+  background:var(--bg);outline:none;resize:none;line-height:1.7;
+  min-height:140px;transition:all .18s;margin-top:10px;
+}
+.j-textarea:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(5,150,105,.08);}
+
+/* ══ BREATHING PAGE ══ */
+.breath-circle-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 0;}
+.breath-ring{
+  width:180px;height:180px;border-radius:50%;
+  border:3px solid var(--gl);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;margin:0 auto 16px;
+  background:radial-gradient(circle,var(--gp),var(--bp));
+  transition:transform 4s ease-in-out;
+}
+.breath-ring.expand{transform:scale(1.4);}
+.breath-ring.contract{transform:scale(0.85);}
+.breath-txt{font-family:'Instrument Serif',serif;font-size:22px;font-style:italic;color:var(--g2);text-align:center;}
+.breath-phase{font-size:14px;color:var(--m);text-align:center;font-weight:600;margin-bottom:12px;min-height:24px;}
+.breath-count{font-family:'JetBrains Mono',monospace;font-size:32px;color:var(--g);text-align:center;margin-bottom:18px;}
+.btns{display:flex;gap:9px;justify-content:center;}
+
+/* ══ EMERGENCY ══ */
+.crisis-banner{
+  background:linear-gradient(135deg,#fff5f5,#fef3c7);
+  border:1.5px solid #fecaca;border-radius:14px;padding:16px 18px;
+  display:flex;align-items:center;gap:14px;margin-bottom:16px;
+}
+.crisis-ico{font-size:28px;}
+.crisis-h{font-size:13.5px;font-weight:700;color:#991b1b;}
+.crisis-s{font-size:12px;color:#7c2d12;line-height:1.6;margin-top:2px;}
+.resource-card{
+  display:flex;align-items:center;gap:14px;padding:14px 16px;
+  background:#fff;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;
+  transition:all .18s;cursor:pointer;
+}
+.resource-card:hover{border-color:var(--g);background:var(--gp);}
+.rc-ico{font-size:24px;flex-shrink:0;}
+.rc-name{font-size:13.5px;font-weight:700;color:var(--ink);}
+.rc-sub{font-size:12px;color:var(--m);margin-top:2px;}
+.rc-num{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--g);}
+
+/* DEMO OVERLAY */
+.demo-overlay{
+  position:fixed;inset:0;z-index:8888;
+  background:rgba(0,0,0,.7);
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+  animation:fadeIn .3s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.demo-start-card{
+  background:#fff;border-radius:24px;padding:40px 48px;text-align:center;
+  max-width:520px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,.25);
+}
+.ds-logo{
+  width:72px;height:72px;border-radius:20px;margin:0 auto 18px;
+  background:linear-gradient(135deg,var(--g),var(--t),var(--b));
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 8px 24px rgba(5,150,105,.4);
+}
+.ds-logo span{color:#fff;font-family:'Instrument Serif',serif;font-size:32px;font-style:italic;}
+.ds-title{font-family:'Instrument Serif',serif;font-size:28px;font-style:italic;color:var(--ink);margin-bottom:8px;}
+.ds-sub{font-size:14px;color:var(--m);line-height:1.65;margin-bottom:24px;}
+.ds-badges{display:flex;gap:8px;justify-content:center;margin-bottom:28px;}
+.ds-badge{font-size:10px;font-weight:700;padding:4px 12px;border-radius:99px;letter-spacing:.04em;}
+.ds-start{
+  background:linear-gradient(135deg,var(--g),var(--g2));color:#fff;border:none;
+  padding:14px 36px;border-radius:14px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(5,150,105,.4);
+  transition:all .15s;width:100%;
+}
+.ds-start:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(5,150,105,.5);}
+.ds-note{font-size:11px;color:var(--m2);margin-top:14px;}
+</style>
+</head>
+<body>
+
+<!-- DEMO START OVERLAY -->
+<div class="demo-overlay" id="demoOverlay">
+  <div class="demo-start-card">
+    <div class="ds-logo"><span>S</span></div>
+    <div class="ds-title">Sahaara AI Demo</div>
+    <div class="ds-sub">
+      A wellness & education AI agent for UMT Lahore students.<br>
+      Built by <strong>Fatima Ehtisham</strong> — F2024376045.<br>
+      Supports <strong>SDG 3</strong> & <strong>SDG 4</strong> · Pakistan Vision 2030.
+    </div>
+    <div class="ds-badges">
+      <span class="ds-badge" style="background:#d1fae5;color:#047857;">🌿 SDG 3 Health</span>
+      <span class="ds-badge" style="background:#dbeafe;color:#1d4ed8;">📚 SDG 4 Education</span>
+      <span class="ds-badge" style="background:#fce7f3;color:#9d174d;">🇵🇰 UMT Lahore</span>
+    </div>
+    <button class="ds-start" onclick="startDemo()">▶ Start Live Demo</button>
+    <div class="ds-note">Screen record this tab for your class presentation</div>
+  </div>
+</div>
+
+<!-- DEMO BANNER -->
+<div class="demo-banner">
+  <div class="demo-live"><div class="demo-dot"></div> LIVE DEMO — Sahaara AI · UMT Student Wellness Platform</div>
+  <div style="font-size:10px;color:rgba(255,255,255,.5);">SDG 3 · SDG 4 · Pakistan Vision 2030 & 2035 · Fatima Ehtisham · F2024376045</div>
+  <div class="demo-controls">
+    <span class="dctl" onclick="runAutoDemo()">▶ Auto Demo</span>
+    <span class="dctl" onclick="resetDemo()">↺ Reset</span>
+    <span class="dctl green" id="demoStatus">Ready</span>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="logo-row">
+      <div class="logo-icon"><span>S</span></div>
+      <div>
+        <div class="logo-name">Sahaara <em>AI</em></div>
+        <div class="logo-sub">UMT Wellness Platform</div>
+      </div>
+    </div>
+    <div class="sdg-chips">
+      <span class="sdg g">🌿 SDG 3</span>
+      <span class="sdg b">📚 SDG 4</span>
+    </div>
+  </div>
+
+  <div class="nav-sec">Student Portal</div>
+  <div class="ni on" onclick="gp('chat',this)"><div class="ni-ico">💬</div>AI Chatbot<span class="ni-live">LIVE</span></div>
+  <div class="ni" onclick="gp('mood',this)"><div class="ni-ico">🌡️</div>Mood Tracker</div>
+  <div class="ni" onclick="gp('anxiety',this)"><div class="ni-ico">🧘</div>Anxiety Check</div>
+  <div class="ni" onclick="gp('planner',this)"><div class="ni-ico">📅</div>Study Planner</div>
+  <div class="ni" onclick="gp('wellness',this)"><div class="ni-ico">💧</div>Wellness Hub</div>
+  <div class="ni" onclick="gp('journal',this)"><div class="ni-ico">📓</div>Wellness Journal</div>
+  <div class="ni" onclick="gp('breathe',this)"><div class="ni-ico">🫁</div>Breathe & Calm</div>
+  <div class="ni" onclick="gp('crisis',this)"><div class="ni-ico">🆘</div>Crisis Support</div>
+
+  <div class="nav-sec">Dashboards</div>
+  <div class="ni" onclick="gp('admin',this)"><div class="ni-ico">🏛️</div>Admin Dashboard</div>
+  <div class="ni" onclick="gp('client',this)"><div class="ni-ico">📊</div>Client Dashboard</div>
+
+  <div class="sb-foot">
+    <div class="user-card">
+      <div class="u-av">FE</div>
+      <div>
+        <div class="u-name">Fatima Ehtisham</div>
+        <div class="u-sub">F2024376045 · UMT</div>
+      </div>
+      <div class="u-dot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;">
+      <div class="tb-title" id="topTitle">AI Chatbot</div>
+      <div class="tb-sub" id="topSub">· Student Portal</div>
+    </div>
+    <div class="tb-pills">
+      <span class="tpill tp-g">🌿 SDG 3 — Good Health</span>
+      <span class="tpill tp-b">📚 SDG 4 — Quality Education</span>
+    </div>
+  </div>
+
+  <!-- ══ CHAT PAGE ══ -->
+  <div class="page on" id="page-chat">
+    <div class="hero">
+      <div class="hero-grid"></div>
+      <div class="hero-left">
+        <div class="hero-badge"><div class="demo-dot"></div>UMT Lahore · Built 2024</div>
+        <div class="hero-h">No student should <em>suffer alone.</em></div>
+        <div class="hero-p">
+          Built by <strong>Fatima Ehtisham</strong> who lost <strong>10kg at UMT from stress</strong> — Sahaara is the support system she wished she had.
+        </div>
+      </div>
+      <div class="hero-nums">
+        <div class="hnum"><div class="hnum-v">24/7</div><div class="hnum-l">Available</div></div>
+        <div class="hnum"><div class="hnum-v">1,247</div><div class="hnum-l">Students</div></div>
+        <div class="hnum"><div class="hnum-v">4.7★</div><div class="hnum-l">Rating</div></div>
+      </div>
+    </div>
+
+    <div class="chat-wrap">
+      <div class="chat-card">
+        <div class="chat-header">
+          <div class="ch-av">S</div>
+          <div>
+            <div class="ch-name">Sahaara AI</div>
+            <div class="ch-sub">Wellness & Education Companion · UMT Lahore</div>
+          </div>
+          <div class="ch-live"><div class="demo-dot"></div> Online</div>
+        </div>
+
+        <div class="chat-msgs" id="chatMsgs">
+          <div class="mrow bot">
+            <div class="mav">S</div>
+            <div class="mbub">
+              Assalam-o-Alaikum! 👋 I'm <strong>Sahaara AI</strong> — built specifically for UMT students juggling academics, hostel life, and everything in between.<br><br>
+              I understand how hard student life can be. I'm here to help with:<br>
+              🧠 <strong>Stress & mental well-being</strong><br>
+              📚 <strong>Study planning & focus techniques</strong><br>
+              😴 <strong>Sleep & healthy routines</strong><br>
+              💪 <strong>Motivation when you feel burned out</strong><br><br>
+              You are not alone. What's on your mind today?
+            </div>
+          </div>
+        </div>
+
+        <div class="quick-area" id="quickArea">
+          <span class="qtag" onclick="qs('I feel very stressed and overwhelmed with my studies')">😟 I feel stressed</span>
+          <span class="qtag" onclick="qs('I cannot sleep properly because of exam anxiety')">😴 Can't sleep</span>
+          <span class="qtag" onclick="qs('Give me motivation, I feel like giving up')">💪 Motivate me</span>
+          <span class="qtag" onclick="qs('What is the best study technique for exams?')">📖 Study tips</span>
+          <span class="qtag" onclick="qs('How do I eat healthy on a student budget?')">🥗 Healthy eating</span>
+        </div>
+
+        <div class="chat-input-wrap">
+          <textarea id="ci" rows="1" placeholder="Talk to Sahaara…" onkeydown="ck(event)" oninput="ar(this)"></textarea>
+          <button class="sbtn" id="csb" onclick="sc()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- SIDE WIDGETS -->
+      <div class="side-stack">
+        <div class="wcard">
+          <div class="wtitle">🌡️ How are you feeling?</div>
+          <div class="mood-grid">
+            <button class="mbtn" onclick="sm2(this,'happy')"><span class="memoji">😊</span>Happy</button>
+            <button class="mbtn" onclick="sm2(this,'tired')"><span class="memoji">😴</span>Tired</button>
+            <button class="mbtn" onclick="sm2(this,'motivated')"><span class="memoji">🔥</span>On fire</button>
+            <button class="mbtn" onclick="sm2(this,'burnout')"><span class="memoji">😰</span>Burned out</button>
+          </div>
+          <div id="moodTip"></div>
+        </div>
+
+        <div class="wcard">
+          <div class="wtitle">💧 Water Tracker</div>
+          <div class="cups" id="cups">
+            <span class="cup" onclick="tw(0)">🥤</span><span class="cup" onclick="tw(1)">🥤</span>
+            <span class="cup" onclick="tw(2)">🥤</span><span class="cup" onclick="tw(3)">🥤</span>
+            <span class="cup" onclick="tw(4)">🥤</span><span class="cup" onclick="tw(5)">🥤</span>
+            <span class="cup" onclick="tw(6)">🥤</span><span class="cup" onclick="tw(7)">🥤</span>
+          </div>
+          <div class="wbar"><div class="wfill" id="wf" style="width:0%"></div></div>
+          <div class="wlbl" id="wlbl">0 / 8 glasses today</div>
+        </div>
+
+        <div class="wcard">
+          <div class="wtitle">😴 Sleep Log</div>
+          <div class="sleep-row-w">
+            <label>Hours</label>
+            <input type="range" min="0" max="12" step=".5" value="7" oninput="us(this.value)"/>
+            <span class="sval" id="sv">7h</span>
+          </div>
+          <div id="sn2" style="font-size:11px;color:var(--m);margin-top:7px;">✅ Great sleep! Brain is fully rested.</div>
+        </div>
+
+        <div class="wcard" style="background:linear-gradient(135deg,#f0fdf4,#eff6ff);">
+          <div class="wtitle">⭐ Wellness Score</div>
+          <div class="ws-ring"><div class="ws-score">82</div></div>
+          <div class="ws-label">Good · Keep going! 💪</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MOOD TRACKER ══ -->
+  <div class="page" id="page-mood">
+    <div class="sec-head"><div class="sec-h">Mood Tracker</div><div class="sec-s">Log your emotional state and get personalised AI advice. Track your patterns over time.</div></div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-h">How are you feeling right now?</div>
+        <div class="big-moods">
+          <button class="bmb" onclick="lm(this,'😊 Happy','#d1fae5','#065f46')"><span class="bm-em">😊</span>Happy</button>
+          <button class="bmb" onclick="lm(this,'😴 Tired','#fef9c3','#78350f')"><span class="bm-em">😴</span>Tired</button>
+          <button class="bmb" onclick="lm(this,'🔥 Motivated','#fce7f3','#9d174d')"><span class="bm-em">🔥</span>Motivated</button>
+          <button class="bmb" onclick="lm(this,'😰 Burned Out','#fee2e2','#991b1b')"><span class="bm-em">😰</span>Burned Out</button>
+          <button class="bmb" onclick="lm(this,'😟 Anxious','#ede9fe','#5b21b6')"><span class="bm-em">😟</span>Anxious</button>
+          <button class="bmb" onclick="lm(this,'😌 Calm','#dbeafe','#1e3a8a')"><span class="bm-em">😌</span>Calm</button>
+        </div>
+        <div class="ai-advice" id="moodBox">Select how you feel — Sahaara will give you personalised advice 💬</div>
+      </div>
+      <div class="card"><div class="card-h">📈 This Week's Mood</div><canvas id="moodChart" height="200"></canvas></div>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <div class="card-h">📋 Mood History</div>
+      <div id="moodLog">
+        <div class="ml"><span class="ml-d">Yesterday</span><span class="ml-t" style="background:#d1fae5;color:#065f46;">😊 Happy</span><span class="ml-n">Stay in this zone — it's your best mode</span></div>
+        <div class="ml"><span class="ml-d">2 days ago</span><span class="ml-t" style="background:#fee2e2;color:#991b1b;">😰 Burned Out</span><span class="ml-n">Short breaks every 45 mins help a lot</span></div>
+        <div class="ml"><span class="ml-d">3 days ago</span><span class="ml-t" style="background:#fef9c3;color:#78350f;">😴 Tired</span><span class="ml-n">Aim for sleep before midnight</span></div>
+        <div class="ml"><span class="ml-d">4 days ago</span><span class="ml-t" style="background:#ede9fe;color:#5b21b6;">😟 Anxious</span><span class="ml-n">Try 4-7-8 breathing technique</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ANXIETY CHECK ══ -->
+  <div class="page" id="page-anxiety">
+    <div class="sec-head"><div class="sec-h">Anxiety Check</div><div class="sec-s">A quick 5-question wellbeing assessment based on standard mental health screening tools.</div></div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-h">GAD-5 Wellbeing Screening</div>
+        <div class="anxiety-form" id="axForm">
+          <div class="aq">
+            <div class="aq-q">1. How often have you felt nervous or anxious?</div>
+            <div class="aq-scale">
+              <button class="aq-btn" onclick="axSel(this,0,0)">Not at all</button>
+              <button class="aq-btn" onclick="axSel(this,0,1)">Several days</button>
+              <button class="aq-btn" onclick="axSel(this,0,2)">Most days</button>
+              <button class="aq-btn" onclick="axSel(this,0,3)">Nearly every day</button>
+            </div>
+          </div>
+          <div class="aq">
+            <div class="aq-q">2. Have you been unable to stop worrying?</div>
+            <div class="aq-scale">
+              <button class="aq-btn" onclick="axSel(this,1,0)">Not at all</button>
+              <button class="aq-btn" onclick="axSel(this,1,1)">Several days</button>
+              <button class="aq-btn" onclick="axSel(this,1,2)">Most days</button>
+              <button class="aq-btn" onclick="axSel(this,1,3)">Nearly every day</button>
+            </div>
+          </div>
+          <div class="aq">
+            <div class="aq-q">3. How often have you had trouble sleeping?</div>
+            <div class="aq-scale">
+              <button class="aq-btn" onclick="axSel(this,2,0)">Not at all</button>
+              <button class="aq-btn" onclick="axSel(this,2,1)">Several days</button>
+              <button class="aq-btn" onclick="axSel(this,2,2)">Most days</button>
+              <button class="aq-btn" onclick="axSel(this,2,3)">Nearly every day</button>
+            </div>
+          </div>
+          <div class="aq">
+            <div class="aq-q">4. Have you had difficulty concentrating on studies?</div>
+            <div class="aq-scale">
+              <button class="aq-btn" onclick="axSel(this,3,0)">Not at all</button>
+              <button class="aq-btn" onclick="axSel(this,3,1)">Several days</button>
+              <button class="aq-btn" onclick="axSel(this,3,2)">Most days</button>
+              <button class="aq-btn" onclick="axSel(this,3,3)">Nearly every day</button>
+            </div>
+          </div>
+          <div class="aq">
+            <div class="aq-q">5. Have you felt overwhelmed or burned out?</div>
+            <div class="aq-scale">
+              <button class="aq-btn" onclick="axSel(this,4,0)">Not at all</button>
+              <button class="aq-btn" onclick="axSel(this,4,1)">Several days</button>
+              <button class="aq-btn" onclick="axSel(this,4,2)">Most days</button>
+              <button class="aq-btn" onclick="axSel(this,4,3)">Nearly every day</button>
+            </div>
+          </div>
+          <button class="btn-go" onclick="calcAxiety()">Get My Wellbeing Score</button>
+        </div>
+        <div class="anxiety-result" id="axResult">
+          <div class="ar-score" id="axScore">0</div>
+          <div class="ar-label" id="axLabel">-</div>
+          <div class="ar-msg" id="axMsg">-</div>
+        </div>
+      </div>
+      <div class="card"><div class="card-h">📊 Student Anxiety Trends at UMT</div><canvas id="axChart" height="240"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ══ STUDY PLANNER ══ -->
+  <div class="page" id="page-planner">
+    <div class="sec-head"><div class="sec-h">AI Study Planner</div><div class="sec-s">Enter your subject and exam date. Sahaara AI will generate a personalised daily schedule.</div></div>
+    <div class="card" style="margin-bottom:18px;">
+      <div class="pf">
+        <div class="fg"><label>Subject / Course</label><input type="text" id="ps" placeholder="e.g. Data Structures, Calculus"/></div>
+        <div class="fg"><label>Exam Date</label><input type="date" id="pd"/></div>
+        <div class="fg"><label>Daily Hours</label>
+          <select id="ph"><option value="1">1 hour/day</option><option value="2" selected>2 hours/day</option><option value="3">3 hours/day</option><option value="4">4+ hours/day</option></select>
+        </div>
+        <div class="fg"><label>Difficulty</label>
+          <select id="pl"><option>Easy</option><option selected>Medium</option><option>Hard / Tough</option></select>
+        </div>
+      </div>
+      <button class="btn-go" onclick="genPlan()">✨ Build My Study Plan</button>
+    </div>
+    <div id="planOut" style="display:none;">
+      <div class="card">
+        <div class="card-h" id="planTitle">Study Plan</div>
+        <div style="font-size:12px;color:var(--m);margin-bottom:14px;" id="planMeta"></div>
+        <div style="display:flex;flex-direction:column;gap:8px;" id="planItems"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ WELLNESS HUB ══ -->
+  <div class="page" id="page-wellness">
+    <div class="sec-head"><div class="sec-h">Wellness Hub</div><div class="sec-s">Track hydration, sleep, and focus using the Pomodoro timer.</div></div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-h">💧 Hydration Today</div>
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-family:'Instrument Serif',serif;font-style:italic;font-size:60px;color:var(--b);letter-spacing:-3px;line-height:1;" id="bigW">0</div>
+          <div style="font-size:12px;color:var(--m);margin-top:4px;">glasses out of 8 today</div>
+        </div>
+        <div class="wbar" style="height:9px;margin-bottom:14px;"><div class="wfill" id="wf2" style="width:0%"></div></div>
+        <div style="display:flex;gap:8px;justify-content:center;">
+          <button class="btn-go" style="padding:9px 20px;" onclick="aw()">＋ Add Glass</button>
+          <button onclick="rw()" style="padding:9px 20px;border:1.5px solid var(--border);border-radius:10px;background:#fff;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:var(--m);">Reset</button>
+        </div>
+      </div>
+      <div class="card"><div class="card-h">😴 Sleep This Week</div><canvas id="sleepChart" height="155"></canvas></div>
+      <div class="card">
+        <div class="card-h">⏱️ Pomodoro Timer</div>
+        <div class="pomo-n" id="pomoT">25:00</div>
+        <div class="pomo-l" id="pomoL">Focus Session · Stay off your phone</div>
+        <div class="pomo-b">
+          <button class="pbtn pb-go" id="pomoBtn" onclick="togPomo()">▶ Start</button>
+          <button class="pbtn pb-r" onclick="rstPomo()">↺ Reset</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-h">🌟 Daily Wellness Tips</div>
+        <div style="display:flex;flex-direction:column;gap:8px;" id="tipList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ JOURNAL ══ -->
+  <div class="page" id="page-journal">
+    <div class="sec-head"><div class="sec-h">Wellness Journal</div><div class="sec-s">Write freely. Your thoughts are safe here. Reflect, release, and grow.</div></div>
+    <div class="g2" style="margin-bottom:18px;">
+      <div style="grid-column:1/-1;">
+        <div class="card">
+          <div class="card-h">✍️ Today's Entry</div>
+          <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+            <span style="font-size:12px;font-weight:600;color:var(--m);">Mood tag:</span>
+            <button class="mbtn" style="padding:4px 12px;" onclick="tagJ(this,'😊 Happy')">😊 Happy</button>
+            <button class="mbtn" style="padding:4px 12px;" onclick="tagJ(this,'😔 Sad')">😔 Sad</button>
+            <button class="mbtn" style="padding:4px 12px;" onclick="tagJ(this,'😤 Frustrated')">😤 Frustrated</button>
+            <button class="mbtn" style="padding:4px 12px;" onclick="tagJ(this,'🙏 Grateful')">🙏 Grateful</button>
+          </div>
+          <textarea class="j-textarea" id="jText" placeholder="Write anything — what's on your mind, how your day went, what you're worried about…"></textarea>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button class="btn-go" onclick="saveJournal()">Save Entry</button>
+            <button onclick="getJournalAI()" style="padding:10px 20px;border:1.5px solid var(--g);border-radius:10px;background:var(--gp);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:var(--g);">✨ Get AI Reflection</button>
+          </div>
+          <div id="jAI" style="margin-top:14px;font-size:13.5px;color:var(--ink);line-height:1.7;display:none;background:var(--gp);border:1.5px solid var(--gl);border-radius:12px;padding:14px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-h" style="padding:0 0 12px;">📚 Past Entries</div>
+    <div class="journal-wrap" id="journalList">
+      <div class="journal-entry"><div class="je-date">Yesterday · 9:41 PM</div><div class="je-mood">😔 Stressed about exams</div><div class="je-preview">Today was really hard. Three assignments due and I couldn't focus at all. But I finished them...</div></div>
+      <div class="journal-entry"><div class="je-date">2 days ago · 8:15 PM</div><div class="je-mood">🙏 Grateful</div><div class="je-preview">Actually had a decent day. Finished the data structures assignment. Slept before midnight for once...</div></div>
+      <div class="journal-entry"><div class="je-date">4 days ago · 11:03 PM</div><div class="je-mood">😊 Happy</div><div class="je-preview">Got my mid results back. Better than expected! Going to celebrate with dahi phulki from the dhaba...</div></div>
+      <div class="journal-new" onclick="document.getElementById('jText').focus()">
+        <span style="font-size:28px;">✍️</span>
+        <span>Write a new entry</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ BREATHE ══ -->
+  <div class="page" id="page-breathe">
+    <div class="sec-head"><div class="sec-h">Breathe & Calm</div><div class="sec-s">Guided breathing exercises to reduce stress and anxiety in under 5 minutes.</div></div>
+    <div class="g2">
+      <div class="card" style="text-align:center;">
+        <div class="card-h" style="text-align:center;justify-content:center;">4-7-8 Breathing Technique</div>
+        <div class="breath-circle-wrap">
+          <div class="breath-ring" id="breathRing">
+            <div class="breath-txt">Breathe</div>
+          </div>
+        </div>
+        <div class="breath-phase" id="breathPhase">Press Start to begin</div>
+        <div class="breath-count" id="breathCount">—</div>
+        <div class="btns">
+          <button class="btn-go" id="breathBtn" onclick="togBreath()">▶ Start</button>
+          <button class="pbtn pb-r" onclick="rstBreath()">↺ Reset</button>
+        </div>
+        <div style="margin-top:16px;font-size:12px;color:var(--m);line-height:1.7;">
+          <strong>4-7-8 method:</strong> Inhale for 4s → Hold for 7s → Exhale for 8s.<br>
+          Clinically proven to activate the parasympathetic nervous system and reduce cortisol.
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card">
+          <div class="card-h">🧘 Quick Exercises</div>
+          <div style="display:flex;flex-direction:column;gap:9px;">
+            <div class="tiprow"><span class="tip-i">😮‍💨</span><div><div style="font-size:13px;font-weight:700;margin-bottom:3px;">Box Breathing</div><div class="tip-t">Inhale 4s → Hold 4s → Exhale 4s → Hold 4s. Repeat 4 times.</div></div></div>
+            <div class="tiprow"><span class="tip-i">🌊</span><div><div style="font-size:13px;font-weight:700;margin-bottom:3px;">Ocean Breath</div><div class="tip-t">Breathe in through nose, making a gentle ocean sound. Repeat 8 times.</div></div></div>
+            <div class="tiprow"><span class="tip-i">🦁</span><div><div style="font-size:13px;font-weight:700;margin-bottom:3px;">Lion's Breath</div><div class="tip-t">Inhale deeply, then exhale forcefully with tongue out. Releases tension instantly.</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h">🌙 Progressive Muscle Relaxation</div>
+          <div style="font-size:13px;color:var(--m);line-height:1.75;">
+            1. Tense your toes for 5 seconds, then release.<br>
+            2. Move up to your legs, abdomen, hands, shoulders.<br>
+            3. Finish with your face and jaw.<br>
+            <strong style="color:var(--g);">Total time: 5 minutes. Perfect before sleep or an exam.</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CRISIS SUPPORT ══ -->
+  <div class="page" id="page-crisis">
+    <div class="sec-head"><div class="sec-h">Crisis Support</div><div class="sec-s">You matter. If you're struggling, reach out — you don't have to face this alone.</div></div>
+    <div class="crisis-banner">
+      <div class="crisis-ico">💛</div>
+      <div>
+        <div class="crisis-h">If you're in immediate danger, please call 115 (Emergency) right now.</div>
+        <div class="crisis-s">This page has real resources available to UMT Lahore students and Pakistani youth. Asking for help is strength, not weakness.</div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-h">📞 Emergency Contacts</div>
+      <div class="resource-card"><div class="rc-ico">🏥</div><div><div class="rc-name">Umang Pakistan</div><div class="rc-sub">24/7 Mental health helpline in Urdu & English</div></div><div class="rc-num">0317-4288665</div></div>
+      <div class="resource-card"><div class="rc-ico">🎓</div><div><div class="rc-name">UMT Student Services</div><div class="rc-sub">On-campus counselling & support</div></div><div class="rc-num">042-35212801</div></div>
+      <div class="resource-card"><div class="rc-ico">🤝</div><div><div class="rc-name">Rozan Counselling</div><div class="rc-sub">Youth mental health support in Lahore</div></div><div class="rc-num">042-35761999</div></div>
+      <div class="resource-card"><div class="rc-ico">📱</div><div><div class="rc-name">Rescue Emergency</div><div class="rc-sub">National emergency services</div></div><div class="rc-num">1122</div></div>
+    </div>
+    <div class="card">
+      <div class="card-h">💬 Talk to Sahaara about it</div>
+      <div style="font-size:13.5px;color:var(--m);line-height:1.8;margin-bottom:14px;">
+        Sometimes you just need someone to listen. Sahaara is available 24/7 and won't judge you.
+        Go to the <strong>AI Chatbot</strong> tab and type how you're feeling — even if it's just "I'm not okay today."
+      </div>
+      <button class="btn-go" onclick="gp('chat',document.querySelector('.ni'))">💬 Open Chat</button>
+    </div>
+  </div>
+
+  <!-- ══ ADMIN DASHBOARD ══ -->
+  <div class="page" id="page-admin">
+    <div class="sec-head"><div class="sec-h">Admin Dashboard</div><div class="sec-s">University of Management & Technology, Lahore — real-time student wellness analytics.</div></div>
+    <div class="g4">
+      <div class="sc"><div style="font-size:22px;margin-bottom:8px;">👥</div><div class="sc-v" style="color:var(--g)">1,247</div><div class="sc-l">Active Students</div><span class="sc-b b-up">↑ 12% this month</span></div>
+      <div class="sc"><div style="font-size:22px;margin-bottom:8px;">💬</div><div class="sc-v" style="color:var(--b)">8,432</div><div class="sc-l">AI Conversations</div><span class="sc-b b-up">↑ 24% this week</span></div>
+      <div class="sc"><div style="font-size:22px;margin-bottom:8px;">😰</div><div class="sc-v" style="color:var(--a)">34%</div><div class="sc-l">Stress Rate</div><span class="sc-b b-up">↓ 8% reduced</span></div>
+      <div class="sc"><div style="font-size:22px;margin-bottom:8px;">⭐</div><div class="sc-v" style="color:var(--g)">4.7</div><div class="sc-l">Satisfaction</div><span class="sc-b b-up">↑ 0.3 this month</span></div>
+    </div>
+    <div class="g2">
+      <div class="cc"><div class="cc-h">📊 Daily Active Students — Last 7 Days</div><canvas id="adminAct" height="180"></canvas></div>
+      <div class="cc">
+        <div class="cc-h">🧠 Most Common Student Issues</div>
+        <div style="margin-top:4px;">
+          <div class="ibar"><span class="ibar-nm">Exam Stress</span><div class="ibar-track"><div class="ibar-fill" style="width:78%;background:var(--r);"></div></div><span class="ibar-pct" style="color:var(--r)">78%</span></div>
+          <div class="ibar"><span class="ibar-nm">Sleep Problems</span><div class="ibar-track"><div class="ibar-fill" style="width:62%;background:var(--p);"></div></div><span class="ibar-pct" style="color:var(--p)">62%</span></div>
+          <div class="ibar"><span class="ibar-nm">Study Planning</span><div class="ibar-track"><div class="ibar-fill" style="width:55%;background:var(--b);"></div></div><span class="ibar-pct" style="color:var(--b)">55%</span></div>
+          <div class="ibar"><span class="ibar-nm">Motivation Loss</span><div class="ibar-track"><div class="ibar-fill" style="width:47%;background:var(--a);"></div></div><span class="ibar-pct" style="color:var(--a)">47%</span></div>
+          <div class="ibar"><span class="ibar-nm">Nutrition</span><div class="ibar-track"><div class="ibar-fill" style="width:31%;background:var(--g);"></div></div><span class="ibar-pct" style="color:var(--g)">31%</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="g2" style="margin-top:18px;">
+      <div class="cc"><div class="cc-h">🌡️ Mood Distribution This Week</div><canvas id="adminMood" height="200"></canvas></div>
+      <div class="cc">
+        <div class="cc-h">🎯 SDG Impact — Vision 2030 & 2035</div>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:13px;font-weight:600;">🌿 SDG 3 — Health Queries Resolved</span><span style="font-size:14px;font-weight:800;color:var(--g);">4,218</span></div>
+            <div style="background:var(--bg);height:9px;border-radius:99px;overflow:hidden;"><div style="width:72%;height:100%;background:linear-gradient(90deg,var(--g),#34d399);border-radius:99px;"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="font-size:13px;font-weight:600;">📚 SDG 4 — Education Queries Resolved</span><span style="font-size:14px;font-weight:800;color:var(--b);">3,614</span></div>
+            <div style="background:var(--bg);height:9px;border-radius:99px;overflow:hidden;"><div style="width:61%;height:100%;background:linear-gradient(90deg,var(--b),#60a5fa);border-radius:99px;"></div></div>
+          </div>
+          <div class="imp"><div class="imp-ic">🇵🇰</div><div><div class="imp-h">Pakistan Vision 2030 & 2035 Aligned</div><div class="imp-s">Sahaara supports national student health & education goals — directly serving UMT's 1,247 enrolled students in Lahore.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CLIENT DASHBOARD ══ -->
+  <div class="page" id="page-client">
+    <div class="sec-head"><div class="sec-h">Client Dashboard</div><div class="sec-s">Hostel & University Management · Monthly wellness performance report — May 2026, UMT Lahore.</div></div>
+    <div class="g3">
+      <div class="sc" style="text-align:center;"><div style="font-family:'Instrument Serif',serif;font-size:38px;font-style:italic;color:var(--g);">1,247</div><div class="sc-l">Active Students</div></div>
+      <div class="sc" style="text-align:center;"><div style="font-family:'Instrument Serif',serif;font-size:38px;font-style:italic;color:var(--b);">89%</div><div class="sc-l">Engagement Rate</div></div>
+      <div class="sc" style="text-align:center;"><div style="font-family:'Instrument Serif',serif;font-size:38px;font-style:italic;color:var(--a);">34%</div><div class="sc-l">Stress Rate (↓ 8%)</div></div>
+      <div class="sc" style="text-align:center;"><div style="font-family:'Instrument Serif',serif;font-size:38px;font-style:italic;color:var(--g);">4.7★</div><div class="sc-l">User Satisfaction</div></div>
+      <div class="sc" style="text-align:center;"><div style="font-family:'Instrument Serif',serif;font-size:38px;font-style:italic;color:var(--g);">7,832</div><div class="sc-l">Queries Resolved</div></div>
+      <div class="sc" style="text-align:center;"><div style="font-family:'Instrument Serif',serif;font-size:38px;font-style:italic;color:var(--r);">23%</div><div class="sc-l">Burnout Cases (↓ 12%)</div></div>
+    </div>
+    <div class="g2">
+      <div class="cc"><div class="cc-h">📈 Engagement Growth</div><canvas id="cliEng" height="180"></canvas></div>
+      <div class="cc"><div class="cc-h">📉 Stress vs Satisfaction</div><canvas id="cliWell" height="180"></canvas></div>
+    </div>
+    <div class="card" style="margin-top:18px;">
+      <div class="card-h">📋 Monthly Report · May 2026 · UMT Lahore</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px;">
+        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:15px;">
+          <div style="font-size:11px;font-weight:700;color:#065f46;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;">✅ Positive Findings</div>
+          <div style="font-size:12.5px;color:#065f46;line-height:1.9;">• 89% student engagement<br>• Stress reduced 8%<br>• 4.7/5 satisfaction<br>• Improved sleep patterns<br>• 7,832 queries answered</div>
+        </div>
+        <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:15px;">
+          <div style="font-size:11px;font-weight:700;color:#78350f;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;">⚠️ Areas of Concern</div>
+          <div style="font-size:12.5px;color:#78350f;line-height:1.9;">• 34% high exam stress<br>• 23% burnout signs<br>• Low hostel hydration<br>• Irregular sleep cycles<br>• Skipping meals pre-exam</div>
+        </div>
+        <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:15px;">
+          <div style="font-size:11px;font-weight:700;color:#1e40af;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;">💡 Recommendations</div>
+          <div style="font-size:12.5px;color:#1e40af;line-height:1.9;">• Promote in all hostels<br>• Add campus water stations<br>• Stress relief workshops<br>• Sleep hygiene resources<br>• Integrate into UMT LMS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══ SCRIPTED DEMO RESPONSES ══
+// These are pre-written beautiful responses — no API needed
+const RESPONSES = {
+  'I feel very stressed and overwhelmed with my studies': `I hear you, and I want you to know — what you're feeling is completely valid. UMT's workload is genuinely intense, and feeling overwhelmed doesn't mean you're failing. It means you care.
+
+Here's what I want you to try right now:
+• 🫁 Take 3 slow, deep breaths before anything else
+• 📝 Write down the ONE thing that's stressing you most — just one
+• ⏱️ Work on it for just 25 minutes (Pomodoro method) — nothing else
+• 🚶 Then walk outside for 10 minutes — non-negotiable
+
+You've made it this far at UMT. That already proves you're stronger than you think. I'm here whenever you need to talk. 💚`,
+
+  'I cannot sleep properly because of exam anxiety': `Exam anxiety affecting your sleep is one of the most common things UMT students come to me about — you're absolutely not alone in this.
+
+Your brain is in "fight mode" at night, running through exam scenarios. Here's how to interrupt that:
+
+😴 **Before bed:**
+• Put your notes away 1 hour before sleep — your brain needs a buffer
+• Try 4-7-8 breathing: inhale 4s, hold 7s, exhale 8s (go to the Breathe tab!)
+• Write tomorrow's 3 tasks on paper and leave them — it signals your brain to "park" the worry
+
+💡 **Quick tip:** Keep your room cool, and don't study in your bed. Your brain needs to associate your bed with rest, not stress.
+
+You will get through this. One exam at a time. 🌙`,
+
+  'Give me motivation, I feel like giving up': `Fatima Ehtisham — the person who built me — felt exactly this way at UMT. She lost 10kg from stress and thought about giving up many times. She didn't. And now she's built a platform helping 1,247 students.
+
+That's your story too. You haven't given up yet — you reached out instead. That takes courage.
+
+Here's the truth:
+🔥 Giving up feels permanent when you're in the worst moment. But this moment will pass.
+📚 You don't need to be perfect. You need to keep showing up.
+💪 One more day. One more assignment. One more step.
+
+What's the one thing making you feel like giving up today? Tell me — I want to help you work through it specifically. 💚`,
+
+  'What is the best study technique for exams?': `Great question! After supporting hundreds of UMT students, here are the techniques that actually work:
+
+📚 **The Big 3 (backed by science):**
+
+1. **Active Recall** — Close your notes. Try to write everything you remember. Then check. This beats re-reading by 50%.
+
+2. **Spaced Repetition** — Study a topic today, review in 2 days, again in 5 days, again in 12 days. Your brain locks it in permanently.
+
+3. **Pomodoro Method** — 25 minutes of focused work, 5 min break. No phone. Use our built-in timer! ⏱️
+
+🇵🇰 **For UMT specifically:**
+• Past papers are GOLD. UMT professors love repeating question patterns.
+• Study in the library between 8-11 AM — your focus is highest then.
+• Form a 2-3 person study group for revision, NOT for first-time learning.
+
+Want me to build you a personalised study plan? Go to the Study Planner tab! 📅`,
+
+  'How do I eat healthy on a student budget?': `Eating healthy in a Pakistani hostel on a student budget is actually very doable — you just need to know what to pick. 🥗
+
+**Best cheap healthy options near UMT Lahore:**
+• 🍳 Daal chawal — complete protein + carbs for under Rs. 100
+• 🥚 Boiled eggs from any dhaba — 2 eggs = perfect pre-exam brain fuel
+• 🍌 Seasonal fruits from the cart outside campus — the best Rs. 50 you'll spend
+• 🥜 Peanuts/chana from the vendor — great snack instead of chips
+
+**What to AVOID:**
+• Skipping meals before exams (your brain literally can't function without glucose)
+• Too many fried things from the canteen
+• Energy drinks — the crash makes things worse
+
+**Golden rule:** Never skip breakfast before a paper. Even plain roti with chai is better than nothing.
+
+Drink water too — most UMT students are chronically dehydrated without knowing it! 💧`
+};
+
+const MOOD_TIPS = {
+  happy:"You're in a great headspace! Tackle your hardest topic now 💪",
+  tired:"Rest IS productive. A 20-min nap resets focus better than coffee 😴",
+  motivated:"You're in the zone — set a 90-min deep work block right now 🔥",
+  burnout:"Stop. Drink water. Step outside for 10 minutes. You matter more than any grade 🌿"
+};
+
+const MOOD_ADVICE = {
+  '😊 Happy': "You're in a great space right now! This is your peak productivity window — use it for your hardest subject. Also log this feeling so you can look back at it when things feel harder. Happy moods are worth protecting: sleep on time tonight, eat well, and keep the momentum. 💚",
+  '😴 Tired': "Feeling tired is your body's honest signal — not a weakness. At UMT, so many students push through exhaustion and actually study less effectively as a result. Try a 20-minute power nap if you can, then drink a full glass of water before opening your books again. Your brain consolidates memory when you rest. 😴",
+  '🔥 Motivated': "This energy is rare — protect it! Put your phone in another room, open your hardest topic, and set a 90-minute deep work session. Motivated days at UMT are when you can cover twice the material. Tell someone your study goal for today — it increases follow-through. 🔥",
+  '😰 Burned Out': "Burnout at UMT is real and more common than anyone admits. What you're feeling is valid. The worst thing you can do is push harder right now. Take a real break — step outside, eat something, call someone you love. Your best academic performance will always come after proper rest. You are not a machine. 💙",
+  '😟 Anxious': "Anxiety is your brain trying to protect you — but it's using the wrong tools right now. Try this: write down the specific thing you're anxious about. Then ask: is this something I can take action on today? If yes, do one small thing. If no, remind yourself that worry isn't preparation. Go to the Breathe tab for a quick 4-7-8 exercise. 🧘",
+  '😌 Calm': "This calm is gold — hold onto it. Calm states are when you absorb information most effectively. Use this time for reading new material or tackling complex concepts. A calm mind at UMT is a powerful mind. Well done for getting here. 🌿"
+};
+
+let chatBusy = false, waterCount = 0, pomInt = null, pomRun = false, pomSec = 25*60, pomBrk = false;
+let breathInt = null, breathRun = false, breathPhase = 0, breathSec = 4, breathCycle = 0;
+let axScores = [null,null,null,null,null];
+let currentJTag = '';
+
+const titlesMap = {
+  chat:'AI Chatbot', mood:'Mood Tracker', anxiety:'Anxiety Check',
+  planner:'Study Planner', wellness:'Wellness Hub', journal:'Wellness Journal',
+  breathe:'Breathe & Calm', crisis:'Crisis Support',
+  admin:'Admin Dashboard', client:'Client Dashboard'
+};
+const secMap = {
+  chat:'Student Portal', mood:'Student Portal', anxiety:'Student Portal',
+  planner:'Student Portal', wellness:'Student Portal', journal:'Student Portal',
+  breathe:'Student Portal', crisis:'Student Portal',
+  admin:'Dashboards', client:'Dashboards'
+};
+
+function gp(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('on'));
+  document.getElementById('page-' + id).classList.add('on');
+  if(el) el.classList.add('on');
+  document.getElementById('topTitle').textContent = titlesMap[id] || id;
+  document.getElementById('topSub').textContent = '· ' + (secMap[id] || '');
+}
+
+function startDemo() {
+  document.getElementById('demoOverlay').style.display = 'none';
+}
+
+// CHAT
+function ar(el) { el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+function ck(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sc();} }
+function qs(t) { document.getElementById('ci').value=t; document.getElementById('quickArea').style.display='none'; sc(); }
+
+function addMsg(role, html) {
+  const wrap = document.getElementById('chatMsgs');
+  const row = document.createElement('div'); row.className = 'mrow ' + role;
+  const av = document.createElement('div'); av.className = 'mav'; av.textContent = role==='bot'?'S':'U';
+  const bub = document.createElement('div'); bub.className = 'mbub'; bub.innerHTML = html;
+  row.appendChild(av); row.appendChild(bub); wrap.appendChild(row);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+function showTyp() {
+  const wrap = document.getElementById('chatMsgs');
+  const row = document.createElement('div'); row.className = 'mrow bot'; row.id = 'typInd';
+  row.innerHTML = '<div class="mav">S</div><div class="typing-ind"><div class="td"></div><div class="td"></div><div class="td"></div></div>';
+  wrap.appendChild(row); wrap.scrollTop = wrap.scrollHeight;
+}
+function hideTyp() { const t = document.getElementById('typInd'); if(t) t.remove(); }
+function fmt(t) {
+  return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+          .replace(/^• (.+)$/gm,'• $1')
+          .replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+}
+
+async function sc() {
+  if(chatBusy) return;
+  const inp = document.getElementById('ci');
+  const txt = inp.value.trim(); if(!txt) return;
+  document.getElementById('quickArea').style.display = 'none';
+  inp.value = ''; inp.style.height = 'auto';
+  chatBusy = true; document.getElementById('csb').disabled = true;
+  addMsg('me', txt); showTyp();
+
+  // Use scripted response if available, otherwise call Anthropic API
+  const scripted = RESPONSES[txt];
+  const delay = 1200 + Math.random() * 800;
+
+  if(scripted) {
+    await new Promise(r => setTimeout(r, delay));
+    hideTyp();
+    addMsg('bot', fmt(scripted));
+  } else {
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          model:"claude-sonnet-4-20250514", max_tokens:500,
+          system:`You are Sahaara AI — a warm, empathetic wellness and education companion for students at UMT (University of Management and Technology), Lahore, Pakistan. You were built by Fatima Ehtisham who lost 10kg from stress at UMT. Support SDG 3 (health/wellness) and SDG 4 (education). Be warm, empathetic, practical. 3-5 sentences or short bullets. Always acknowledge feelings first.`,
+          messages:[{role:"user",content:txt}]
+        })
+      });
+      const d = await res.json();
+      hideTyp();
+      addMsg('bot', fmt(d.content?.[0]?.text || "I'm here for you. Tell me more — I want to help. 💚"));
+    } catch {
+      hideTyp();
+      // Graceful fallback
+      addMsg('bot', "I hear you. As a UMT student, you're carrying a lot. What's weighing on you most right now? I want to understand and help specifically. 💚");
+    }
+  }
+  chatBusy = false;
+  document.getElementById('csb').disabled = false;
+  inp.focus();
+}
+
+// MOOD SIDEBAR WIDGET
+const moodTips2 = MOOD_TIPS;
+function sm2(btn, type) {
+  document.querySelectorAll('.mbtn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('moodTip').textContent = moodTips2[type] || '';
+}
+
+// WATER
+function tw(i) {
+  const cups = document.getElementById('cups').children;
+  if(cups[i].classList.contains('full')) { for(let j=i;j<8;j++) cups[j].classList.remove('full'); waterCount=i; }
+  else { for(let j=0;j<=i;j++) cups[j].classList.add('full'); waterCount=i+1; }
+  syncW();
+}
+function aw() { if(waterCount<8){ document.getElementById('cups').children[waterCount].classList.add('full'); waterCount++; syncW(); } }
+function rw() { waterCount=0; document.querySelectorAll('.cup').forEach(c=>c.classList.remove('full')); syncW(); }
+function syncW() {
+  const p = waterCount/8*100;
+  ['wf','wf2'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.width=p+'%';});
+  const bw=document.getElementById('bigW'); if(bw) bw.textContent=waterCount;
+  const l=document.getElementById('wlbl');
+  if(l) l.textContent=waterCount+' / 8 glasses · '+(waterCount>=8?'Excellent! 🎉':waterCount>=5?'Good going! 👍':'Drink more water 💧');
+}
+
+// SLEEP
+function us(v) {
+  document.getElementById('sv').textContent=v+'h';
+  const n=document.getElementById('sn2');
+  if(v<6) n.textContent='⚠️ Too little sleep — memory and focus suffer.';
+  else if(v>=7&&v<=9) n.textContent='✅ Great sleep! Brain is fully rested.';
+  else if(v>9) n.textContent='😴 Oversleeping can cause fatigue too.';
+  else n.textContent='👍 Decent. Try for 7-8 hours.';
+}
+
+// MOOD PAGE
+async function lm(btn, label, bg, col) {
+  document.querySelectorAll('.bmb').forEach(b=>{b.style.borderColor='';b.classList.remove('sel');});
+  btn.style.borderColor='var(--g)'; btn.classList.add('sel');
+  const box = document.getElementById('moodBox');
+  box.innerHTML = '<div class="spin-row"><div class="spin"></div> Getting your personalised advice…</div>';
+  await new Promise(r => setTimeout(r, 900));
+  box.innerHTML = fmt(MOOD_ADVICE[label] || "Take a breath. You're doing better than you think. 🌟");
+  const log = document.getElementById('moodLog');
+  const item = document.createElement('div'); item.className='ml';
+  item.innerHTML=`<span class="ml-d">Just now</span><span class="ml-t" style="background:${bg};color:${col};">${label}</span><span class="ml-n">Logged ✓</span>`;
+  log.prepend(item);
+}
+
+// ANXIETY CHECK
+function axSel(btn, q, val) {
+  const row = btn.parentElement;
+  row.querySelectorAll('.aq-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  axScores[q] = val;
+}
+function calcAxiety() {
+  const filled = axScores.filter(s=>s!==null);
+  if(filled.length < 5) { alert('Please answer all 5 questions first.'); return; }
+  const total = axScores.reduce((a,b)=>a+b,0);
+  const result = document.getElementById('axResult');
+  const form = document.getElementById('axForm');
+  form.style.display='none'; result.style.display='block';
+  let label, msg, color;
+  if(total<=4) { label='Mild / Manageable'; color='var(--g)'; msg='Your stress levels appear manageable. Keep up your healthy habits — sleep, hydration, and regular breaks make a big difference. Check in with Sahaara any time you feel things building up.'; }
+  else if(total<=9) { label='Moderate — Take Action'; color='var(--a)'; msg='You\'re showing signs of moderate anxiety. This is very common at UMT — you\'re not alone. Try the Breathe tab exercises daily, limit caffeine, and talk to Sahaara about specific worries. Consider visiting UMT Student Services.'; }
+  else { label='High — Please Reach Out'; color='var(--r)'; msg='Your score suggests significant stress that deserves proper support. Please don\'t carry this alone. Visit UMT\'s student counselling services, call Umang Pakistan (0317-4288665), or talk to a trusted person today. You deserve real support.'; }
+  document.getElementById('axScore').textContent = total + '/15';
+  document.getElementById('axScore').style.color = color;
+  document.getElementById('axLabel').textContent = label;
+  document.getElementById('axMsg').textContent = msg;
+}
+
+// PLANNER
+async function genPlan() {
+  const sub = document.getElementById('ps').value.trim();
+  const date = document.getElementById('pd').value;
+  const hrs = document.getElementById('ph').value;
+  const lvl = document.getElementById('pl').value;
+  if(!sub||!date){alert('Please fill in subject and exam date.');return;}
+  const days = Math.ceil((new Date(date)-new Date())/86400000);
+  if(days<=0){alert('Please choose a future exam date.');return;}
+  const out = document.getElementById('planOut'); out.style.display='block';
+  document.getElementById('planTitle').textContent = '📅 Study Plan — '+sub;
+  document.getElementById('planMeta').textContent = days+' days until exam · '+hrs+' hour(s)/day · '+lvl+' difficulty';
+  const items = document.getElementById('planItems');
+  items.innerHTML = '<div class="spin-row"><div class="spin"></div> Generating your personalised plan…</div>';
+  await new Promise(r=>setTimeout(r,1200));
+  const plan = [
+    {t:'8:30 AM',task:'Review lecture notes — highlight key concepts & definitions',c:'#059669'},
+    {t:'10:00 AM',task:'Attempt 5 past paper questions under timed conditions',c:'#2563eb'},
+    {t:'12:00 PM',task:'Lunch break + 20 min walk outside — mandatory rest',c:'#d97706'},
+    {t:'1:30 PM',task:'Create mind maps for difficult topics',c:'#7c3aed'},
+    {t:'3:00 PM',task:'Flashcard revision using active recall method',c:'#0d9488'},
+    {t:'4:30 PM',task:'Pomodoro session: practice problems — 3×25 min blocks',c:'#059669'},
+    {t:'7:00 PM',task:'Write a 1-page summary of everything learned today',c:'#2563eb'},
+  ];
+  items.innerHTML='';
+  plan.forEach(it=>{
+    const el=document.createElement('div');el.className='srow';
+    el.innerHTML=`<div class="sdot" style="background:${it.c}"></div><div class="stime">${it.t}</div><div><div class="stask">${it.task}</div><div class="ssub">${sub}</div></div>`;
+    items.appendChild(el);
+  });
+}
+
+// POMODORO
+function togPomo() {
+  if(pomRun){clearInterval(pomInt);pomRun=false;document.getElementById('pomoBtn').textContent='▶ Resume';}
+  else{
+    pomRun=true;document.getElementById('pomoBtn').textContent='⏸ Pause';
+    pomInt=setInterval(()=>{
+      pomSec--;
+      if(pomSec<0){pomBrk=!pomBrk;pomSec=pomBrk?5*60:25*60;document.getElementById('pomoL').textContent=pomBrk?'☕ Break — breathe, stretch, relax!':'Focus Session · Stay off your phone';}
+      document.getElementById('pomoT').textContent=String(Math.floor(pomSec/60)).padStart(2,'0')+':'+String(pomSec%60).padStart(2,'0');
+    },1000);
+  }
+}
+function rstPomo(){clearInterval(pomInt);pomRun=false;pomBrk=false;pomSec=25*60;document.getElementById('pomoT').textContent='25:00';document.getElementById('pomoL').textContent='Focus Session · Stay off your phone';document.getElementById('pomoBtn').textContent='▶ Start';}
+
+// BREATHING
+const BREATH_PHASES = [
+  {label:'Inhale…', dur:4, cls:'expand'},
+  {label:'Hold…', dur:7, cls:''},
+  {label:'Exhale…', dur:8, cls:'contract'},
+];
+let bPhaseIdx=0, bSecLeft=4;
+function togBreath(){
+  if(breathRun){clearInterval(breathInt);breathRun=false;document.getElementById('breathBtn').textContent='▶ Resume';}
+  else{
+    breathRun=true;document.getElementById('breathBtn').textContent='⏸ Pause';
+    if(bSecLeft===4&&bPhaseIdx===0) startBreathPhase(0);
+    breathInt=setInterval(()=>{
+      bSecLeft--;
+      document.getElementById('breathCount').textContent=bSecLeft;
+      if(bSecLeft<=0){
+        bPhaseIdx=(bPhaseIdx+1)%3;
+        if(bPhaseIdx===0) breathCycle++;
+        startBreathPhase(bPhaseIdx);
+      }
+    },1000);
+  }
+}
+function startBreathPhase(idx){
+  const p=BREATH_PHASES[idx];
+  const ring=document.getElementById('breathRing');
+  ring.className='breath-ring '+(p.cls||'');
+  document.getElementById('breathPhase').textContent=p.label+' ('+p.dur+' seconds)';
+  bSecLeft=p.dur;
+  document.getElementById('breathCount').textContent=bSecLeft;
+}
+function rstBreath(){clearInterval(breathInt);breathRun=false;bPhaseIdx=0;bSecLeft=4;breathCycle=0;document.getElementById('breathBtn').textContent='▶ Start';document.getElementById('breathPhase').textContent='Press Start to begin';document.getElementById('breathCount').textContent='—';document.getElementById('breathRing').className='breath-ring';}
+
+// JOURNAL
+function tagJ(btn, tag) {
+  document.querySelectorAll('.j-tag-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  currentJTag = tag;
+}
+function saveJournal() {
+  const txt = document.getElementById('jText').value.trim();
+  if(!txt){alert('Write something first!');return;}
+  const list = document.getElementById('journalList');
+  const entry = document.createElement('div'); entry.className='journal-entry';
+  const now = new Date();
+  entry.innerHTML=`<div class="je-date">Today · ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}</div><div class="je-mood">${currentJTag||'📝 Entry'}</div><div class="je-preview">${txt.substring(0,120)}${txt.length>120?'…':''}</div>`;
+  list.prepend(entry);
+  document.getElementById('jText').value='';
+  document.getElementById('jAI').style.display='none';
+  currentJTag='';
+}
+async function getJournalAI() {
+  const txt = document.getElementById('jText').value.trim();
+  if(!txt){alert('Write something first!');return;}
+  const aiBox = document.getElementById('jAI'); aiBox.style.display='block';
+  aiBox.innerHTML='<div class="spin-row"><div class="spin"></div> Sahaara is reading your entry…</div>';
+  await new Promise(r=>setTimeout(r,1100));
+  const reflections = [
+    "What you've shared takes courage to write down. The fact that you're reflecting on your feelings is already a sign of emotional strength. Your feelings are valid — all of them. Be gentle with yourself today. 💚",
+    "Reading your words, I can feel the weight you're carrying. Writing it down like this is one of the healthiest things you can do for your mental health. Your mind is processing, and that's good. Take it one breath at a time. 🌿",
+    "You're showing real self-awareness by putting this into words. UMT life is genuinely intense, and what you're feeling makes complete sense. Remember: you don't need to have everything figured out. Just keep going. 💙",
+    "There's real strength in what you've written. You noticed, you felt, and you expressed it — that's the whole foundation of good mental health. If there's one thing I'd reflect back to you: you are more resilient than you know. 🌸"
+  ];
+  aiBox.innerHTML = reflections[Math.floor(Math.random()*reflections.length)];
+}
+
+// TIPS
+const TIPS=[
+  {i:'💧',t:'Drink water right now. Dehydration cuts concentration by up to 20% — and most UMT students are constantly dehydrated.'},
+  {i:'🚶',t:'Walk for 10 minutes between study sessions. Movement resets your nervous system better than scrolling.'},
+  {i:'😴',t:'Sleep before midnight. Your brain consolidates everything you studied during deep sleep.'},
+  {i:'🥗',t:'Never skip breakfast before an exam. Low blood sugar directly tanks your memory recall.'},
+  {i:'📵',t:'Put your phone in another room while studying. Even seeing it destroys deep focus.'},
+];
+function loadTips(){
+  const c=document.getElementById('tipList');if(!c)return;
+  TIPS.forEach(tip=>{const d=document.createElement('div');d.className='tiprow';d.innerHTML=`<span class="tip-i">${tip.i}</span><span class="tip-t">${tip.t}</span>`;c.appendChild(d);});
+}
+
+// AUTO DEMO MODE
+async function runAutoDemo() {
+  document.getElementById('demoStatus').textContent = '▶ Running…';
+  // 1. Show stressed message
+  document.getElementById('ci').value = "I feel very stressed and overwhelmed with my studies";
+  await new Promise(r=>setTimeout(r,600));
+  sc();
+  await new Promise(r=>setTimeout(r,3500));
+  // 2. Navigate to mood
+  await new Promise(r=>setTimeout(r,2000));
+  gp('mood', document.querySelectorAll('.ni')[1]);
+  await new Promise(r=>setTimeout(r,1500));
+  lm(document.querySelector('.bmb'), '😰 Burned Out', '#fee2e2', '#991b1b');
+  await new Promise(r=>setTimeout(r,2500));
+  // 3. Navigate to planner
+  gp('planner', document.querySelectorAll('.ni')[3]);
+  await new Promise(r=>setTimeout(r,1000));
+  document.getElementById('ps').value = "Data Structures";
+  const d = new Date(); d.setDate(d.getDate()+14);
+  document.getElementById('pd').value = d.toISOString().split('T')[0];
+  await new Promise(r=>setTimeout(r,800));
+  genPlan();
+  await new Promise(r=>setTimeout(r,3000));
+  // 4. Navigate to wellness
+  gp('wellness', document.querySelectorAll('.ni')[4]);
+  await new Promise(r=>setTimeout(r,1500));
+  // 5. Back to chat
+  gp('chat', document.querySelectorAll('.ni')[0]);
+  document.getElementById('demoStatus').textContent = '✓ Done';
+  setTimeout(()=>{ document.getElementById('demoStatus').textContent='Ready'; }, 3000);
+}
+function resetDemo(){
+  document.getElementById('chatMsgs').innerHTML=`<div class="mrow bot"><div class="mav">S</div><div class="mbub">Assalam-o-Alaikum! 👋 I'm <strong>Sahaara AI</strong> — built specifically for UMT students juggling academics, hostel life, and everything in between.<br><br>I understand how hard student life can be. I'm here to help with:<br>🧠 <strong>Stress & mental well-being</strong><br>📚 <strong>Study planning & focus techniques</strong><br>😴 <strong>Sleep & healthy routines</strong><br>💪 <strong>Motivation when you feel burned out</strong><br><br>You are not alone. What's on your mind today?</div></div>`;
+  document.getElementById('quickArea').style.display='flex';
+  gp('chat',document.querySelectorAll('.ni')[0]);
+  document.getElementById('demoStatus').textContent='Ready';
+}
+
+// CHARTS
+function initCharts(){
+  const base = (sy={})=>({plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10},color:'#94a3b8'},...sy},x:{grid:{display:false},ticks:{font:{size:10},color:'#94a3b8'}}}});
+  const mc=document.getElementById('moodChart');
+  if(mc)new Chart(mc,{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:[3,2,4,2,3,5,4],backgroundColor:['#d1fae5','#fee2e2','#fce7f3','#fef9c3','#ede9fe','#d1fae5','#dbeafe'],borderRadius:8,borderSkipped:false}]},options:base({y:{min:0,max:5}})});
+  const sc2=document.getElementById('sleepChart');
+  if(sc2)new Chart(sc2,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:[6,5,7,6,8,9,7],borderColor:'#8b5cf6',backgroundColor:'rgba(139,92,246,.08)',tension:.4,fill:true,pointRadius:4,pointBackgroundColor:'#8b5cf6',pointBorderColor:'#fff',pointBorderWidth:2}]},options:base({y:{min:0,max:12}})});
+  const ax=document.getElementById('axChart');
+  if(ax)new Chart(ax,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{label:'Mild',data:[45,42,38,35,32,29],borderColor:'#059669',tension:.4,pointRadius:4,pointBackgroundColor:'#059669',pointBorderColor:'#fff',pointBorderWidth:2},{label:'Moderate',data:[35,32,30,27,25,22],borderColor:'#f59e0b',tension:.4,pointRadius:4,pointBackgroundColor:'#f59e0b',pointBorderColor:'#fff',pointBorderWidth:2},{label:'High',data:[20,18,16,14,12,10],borderColor:'#ef4444',tension:.4,pointRadius:4,pointBackgroundColor:'#ef4444',pointBorderColor:'#fff',pointBorderWidth:2}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:12}}},scales:{y:{min:0,max:60,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10},color:'#94a3b8'}},x:{grid:{display:false},ticks:{font:{size:10},color:'#94a3b8'}}}}});
+  const aa=document.getElementById('adminAct');
+  if(aa)new Chart(aa,{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:[180,220,195,310,275,140,160],backgroundColor:'rgba(5,150,105,.55)',borderRadius:8,borderSkipped:false}]},options:base()});
+  const am=document.getElementById('adminMood');
+  if(am)new Chart(am,{type:'doughnut',data:{labels:['Happy','Tired','Motivated','Burned Out','Anxious'],datasets:[{data:[28,22,20,18,12],backgroundColor:['#059669','#f59e0b','#ec4899','#ef4444','#3b82f6'],borderWidth:3,borderColor:'#fff',hoverOffset:8}]},options:{cutout:'62%',plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:10,padding:12,color:'#334155'}}}}});
+  const ce=document.getElementById('cliEng');
+  if(ce)new Chart(ce,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May','Jun'],datasets:[{data:[400,580,720,890,1050,1247],borderColor:'#059669',backgroundColor:'rgba(5,150,105,.07)',tension:.4,fill:true,pointRadius:4,pointBackgroundColor:'#059669',pointBorderColor:'#fff',pointBorderWidth:2}]},options:base()});
+  const cw=document.getElementById('cliWell');
+  if(cw)new Chart(cw,{type:'line',data:{labels:['Jan','Feb','Mar','Apr','May'],datasets:[{label:'Stress %',data:[58,52,46,40,34],borderColor:'#ef4444',tension:.4,pointRadius:4,pointBackgroundColor:'#ef4444',pointBorderColor:'#fff',pointBorderWidth:2},{label:'Satisfaction',data:[60,68,74,80,89],borderColor:'#059669',tension:.4,pointRadius:4,pointBackgroundColor:'#059669',pointBorderColor:'#fff',pointBorderWidth:2}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:10},boxWidth:10,padding:12}}},scales:{y:{min:0,max:100,grid:{color:'rgba(0,0,0,.04)'},ticks:{font:{size:10},color:'#94a3b8'}},x:{grid:{display:false},ticks:{font:{size:10},color:'#94a3b8'}}}}});
+}
+window.addEventListener('load',()=>{initCharts();loadTips();});
+</script>
+</body>
+</html>
